@@ -3,6 +3,7 @@ package br.com.zup.author
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.validation.Validated
+import javax.transaction.Transactional
 import javax.validation.Valid
 
 @Validated
@@ -12,6 +13,7 @@ class AuthorController(
 ) {
 
     @Get
+    @Transactional
     fun list(@QueryValue(defaultValue = "") email: String): HttpResponse<Any> {
         if (email.isEmpty()) {
             val authorList = authorRepository.findAll();
@@ -28,6 +30,7 @@ class AuthorController(
     }
 
     @Post
+    @Transactional
     fun create(@Body @Valid request: NewAuthorRequest) {
         println("Request => $request")
         val author = request.toAuthor();
@@ -36,6 +39,7 @@ class AuthorController(
     }
 
     @Put("/{id}")
+    @Transactional
     fun update(@PathVariable("id") id: Long, @Body @Valid request: UpdateAuthorRequest): HttpResponse<Any> {
         val optionalAuthor = authorRepository.findById(id)
         if (optionalAuthor.isEmpty) {
@@ -52,4 +56,15 @@ class AuthorController(
         authorRepository.update(author)
         return HttpResponse.ok(AuthorResponse(author))
     }
+
+    @Delete("/{id}")
+    @Transactional
+    fun delete(@PathVariable("id") id: Long): HttpResponse<Any> {
+        if (authorRepository.findById(id).isEmpty) {
+            return HttpResponse.notFound()
+        }
+        authorRepository.deleteById(id)
+        return HttpResponse.noContent()
+    }
+
 }
