@@ -34,4 +34,22 @@ class AuthorController(
         authorRepository.save(author)
         println("Author => ${author.name}")
     }
+
+    @Put("/{id}")
+    fun update(@PathVariable("id") id: Long, @Body @Valid request: UpdateAuthorRequest): HttpResponse<Any> {
+        val optionalAuthor = authorRepository.findById(id)
+        if (optionalAuthor.isEmpty) {
+            return HttpResponse.notFound()
+        }
+
+        val author = optionalAuthor.get()
+        when {
+            request.name != null -> author.name = request.name
+            request.email != null -> author.email = request.email
+            request.description != null -> author.description = request.description
+        }
+
+        authorRepository.update(author)
+        return HttpResponse.ok(AuthorResponse(author))
+    }
 }

@@ -11,9 +11,9 @@ import javax.validation.constraints.Size
 
 @Entity
 data class Author(
-    @field:NotBlank val name: String,
-    @field:NotBlank @field:Email val email: String,
-    @field:NotBlank @field:Size(max = 400) val description: String
+    @field:NotBlank var name: String,
+    @field:NotBlank @field:Email var email: String,
+    @field:NotBlank @field:Size(max = 400) var description: String
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
