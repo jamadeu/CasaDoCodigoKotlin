@@ -10,7 +10,7 @@ plugins {
 version = "0.1"
 group = "br.com.zup"
 
-val kotlinVersion = project.properties.get("kotlinVersion")
+val kotlinVersion = project.properties["kotlinVersion"]
 repositories {
     mavenCentral()
 }
@@ -37,12 +37,19 @@ dependencies {
     implementation("io.micronaut:micronaut-validation")
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    //Tests
     runtimeOnly("com.h2database:h2")
+    testAnnotationProcessor("io.micronaut:micronaut-inject-java")
+    testCompileOnly("org.junit.jupiter:junit-jupiter-api")
+    testCompileOnly("io.micronaut.test:micronaut-test-junit5:2.3.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.0-M1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
 
     //JPA
     runtimeOnly("io.micronaut.sql:micronaut-jdbc-hikari")
     implementation("io.micronaut.sql:micronaut-hibernate-jpa")
-    implementation ("mysql:mysql-connector-java:8.0.23")
+    implementation("mysql:mysql-connector-java:8.0.23")
 
 }
 
@@ -53,6 +60,8 @@ application {
 java {
     sourceCompatibility = JavaVersion.toVersion("11")
 }
+
+
 
 tasks {
     compileKotlin {
@@ -66,5 +75,8 @@ tasks {
         }
     }
 
+    test {
+        useJUnitPlatform()
+    }
 
 }

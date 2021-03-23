@@ -1,0 +1,16 @@
+micronaut:
+  application:
+    name: casaDoCodigo
+datasources:
+  default:
+    url: ${DB_URL:`jdbc:h2:mem:test`}
+    driverClassName: org.h2.Driver
+    username: ${DB_USER:`sa`}
+    password: ${DB_PASSWORD:``}
+
+jpa:
+  default:
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: update

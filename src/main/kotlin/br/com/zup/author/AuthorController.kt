@@ -32,10 +32,8 @@ class AuthorController(
     @Post
     @Transactional
     fun create(@Body @Valid request: NewAuthorRequest) {
-        println("Request => $request")
         val author = request.toAuthor();
         authorRepository.save(author)
-        println("Author => ${author.name}")
     }
 
     @Put("/{id}")
