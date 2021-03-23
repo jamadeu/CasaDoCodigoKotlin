@@ -1,13 +1,23 @@
 package br.com.zup.author
 
-import io.micronaut.core.annotation.Introspected
+import java.time.LocalDateTime
+import javax.persistence.Entity
+import javax.persistence.GeneratedValue
+import javax.persistence.GenerationType
+import javax.persistence.Id
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 
-@Introspected
+@Entity
 data class Author(
     @field:NotBlank val name: String,
     @field:NotBlank @field:Email val email: String,
     @field:NotBlank @field:Size(max = 400) val description: String
-)
+) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long? = null
+
+    var createdAt: LocalDateTime = LocalDateTime.now()
+}

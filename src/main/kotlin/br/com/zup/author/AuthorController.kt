@@ -8,14 +8,15 @@ import javax.validation.Valid
 
 @Validated
 @Controller("/authors")
-class AuthorController {
+class AuthorController(
+    val authorRepository: AuthorRepository
+) {
 
     @Post
     fun create(@Body @Valid request: NewAuthorRequest) {
         println("Request => $request")
-
         val author = request.toAuthor();
-
+        authorRepository.save(author)
         println("Author => ${author.name}")
     }
 }
