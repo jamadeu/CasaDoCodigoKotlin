@@ -7,6 +7,7 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
@@ -20,6 +21,11 @@ class CategoryControllerTest(private val categoryRepository: CategoryRepository)
     @Inject
     @field:Client("/")
     lateinit var client: RxHttpClient
+
+    @BeforeEach
+    fun setup() {
+        categoryRepository.deleteAll()
+    }
 
     @Test
     fun `Return 200 when create was category `() {

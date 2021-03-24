@@ -28,7 +28,7 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
     lateinit var client: RxHttpClient
 
     @BeforeEach
-    fun drop() {
+    fun setup() {
         authorRepository.deleteAll()
     }
 
