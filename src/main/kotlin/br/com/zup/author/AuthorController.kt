@@ -1,7 +1,9 @@
 package br.com.zup.author
 
+import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.validation.Validated
 import javax.transaction.Transactional
 import javax.validation.Valid
@@ -32,6 +34,7 @@ class AuthorController(
     @Post
     @Transactional
     fun create(@Body @Valid request: NewAuthorRequest) {
+        println(request)
         val author = request.toAuthor();
         authorRepository.save(author)
     }
@@ -64,5 +67,4 @@ class AuthorController(
         authorRepository.deleteById(id)
         return HttpResponse.noContent()
     }
-
 }

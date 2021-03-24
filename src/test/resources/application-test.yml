@@ -1,6 +1,12 @@
 micronaut:
   application:
     name: casaDoCodigo
+  server:
+    netty:
+      access-logger:
+        enabled: true
+        logger-name: my-access-logger
+        log-format: common
 datasources:
   default:
     url: ${DB_URL:`jdbc:h2:mem:test`}

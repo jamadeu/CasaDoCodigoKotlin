@@ -10,7 +10,7 @@ plugins {
 version = "0.1"
 group = "br.com.zup"
 
-val kotlinVersion = project.properties["kotlinVersion"]
+val kotlinVersion = project.properties.get("kotlinVersion")
 repositories {
     mavenCentral()
 }
@@ -73,10 +73,6 @@ tasks {
         kotlinOptions {
             jvmTarget = "11"
         }
-    }
-
-    test {
-        useJUnitPlatform()
     }
 
 }

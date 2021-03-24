@@ -4,9 +4,11 @@ import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.client.annotation.Client
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
-import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.function.Executable
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EmptySource
@@ -26,20 +28,25 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
     @Test
     fun `Return status code 200 when author is created`() {
         val newAuthorRequest = NewAuthorRequest("Author", "author@test.com", "description")
-        val response = client.toBlocking().exchange<Any, Any>(HttpRequest.POST("/authors", newAuthorRequest))
-        val author = authorRepository.findByEmail(newAuthorRequest.email).orElseThrow()
+        client.toBlocking().exchange<Any, Any>(HttpRequest.POST("/authors", newAuthorRequest))
+            .also {
+                assertAll(
+                    Executable { assertNotNull(it) },
+                    Executable { assertEquals(it.status, HttpStatus.OK) }
+                )
+            }
 
-
-        assertAll(
-            Executable { assertNotNull(response) },
-            Executable { assertEquals(response.status, HttpStatus.OK) },
-            Executable { assertEquals(author.name, newAuthorRequest.name) },
-            Executable { assertEquals(author.email, newAuthorRequest.email) },
-            Executable { assertEquals(author.description, newAuthorRequest.description) },
-            Executable { assertNotNull(author.createdAt) },
-            Executable { assertTrue(author.createdAt.isBefore(LocalDateTime.now())) },
-            Executable { assertNotNull(author.id) }
-        )
+        newAuthorRequest.email?.let { authorRepository.findByEmail(it).orElseThrow() }
+            .also {
+                assertAll(
+                    Executable { assertEquals(it!!.name, newAuthorRequest.name) },
+                    Executable { assertEquals(it!!.email, newAuthorRequest.email) },
+                    Executable { assertEquals(it!!.description, newAuthorRequest.description) },
+                    Executable { assertNotNull(it!!.createdAt) },
+                    Executable { assertTrue(it!!.createdAt.isBefore(LocalDateTime.now())) },
+                    Executable { assertNotNull(it!!.id) }
+                )
+            }
     }
 
     @ParameterizedTest
@@ -48,14 +55,13 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
     @ValueSource(strings = ["invalidEmail"])
     fun `Return status 400 when email is null, empty or invalid`(email: String) {
         val newAuthorRequest = NewAuthorRequest("Author", email, "description")
-        val response = client.toBlocking().exchange<Any, Any>(HttpRequest.POST("/authors", newAuthorRequest))
-
-        assertAll(
-            Executable { assertNotNull(response) },
-            Executable { assertEquals(response.status, HttpStatus.BAD_REQUEST) }
-        )
+        client.toBlocking().run {
+            assertThrows<HttpClientResponseException> {
+                exchange<Any, Any>(HttpRequest.POST("/authors", newAuthorRequest)) }
+        }.also {
+            assertEquals(it.status, HttpStatus.BAD_REQUEST)
+        }
     }
-
 
 }
 
