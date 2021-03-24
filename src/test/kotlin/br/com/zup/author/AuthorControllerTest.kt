@@ -17,7 +17,7 @@ import org.junit.jupiter.params.provider.ValueSource
 import java.time.LocalDateTime
 import javax.inject.Inject
 
-@MicronautTest
+@MicronautTest(rollback = true)
 internal class AuthorControllerTest(private val authorRepository: AuthorRepository) {
 
     @Inject
@@ -110,6 +110,23 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
     }
 
 
+    @Test
+    fun `Return status 400 when email already in use`() {
+        val newAuthorRequest = NewAuthorRequest("Name", "email@test.com", "description")
+
+        client.toBlocking().also {
+            it.exchange<NewAuthorRequest, AuthorResponse>(HttpRequest.POST("/authors", newAuthorRequest))
+        }.run {
+            assertThrows<HttpClientResponseException> {
+                exchange<NewAuthorRequest, AuthorResponse>(HttpRequest.POST("/authors", newAuthorRequest))
+            }
+        }.also {
+            assertAll(
+                Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
+                Executable { assertTrue(it.localizedMessage.contains("request.email:")) }
+            )
+        }
+    }
 }
 
 

@@ -7,4 +7,5 @@ import java.util.*
 @Repository
 interface AuthorRepository : JpaRepository<Author, Long> {
     fun findByEmail(email: String): Optional<Author>
+    fun existsByEmail(email: String): Boolean
 }

@@ -1,9 +1,7 @@
 package br.com.zup.author
 
-import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
-import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.validation.Validated
 import javax.transaction.Transactional
 import javax.validation.Valid

@@ -5,8 +5,9 @@ micronaut:
     netty:
       access-logger:
         enabled: true
-        logger-name: my-access-logger
+        logger-name: logger
         log-format: common
+
 datasources:
   default:
     url: ${DB_URL:`jdbc:h2:mem:test`}
