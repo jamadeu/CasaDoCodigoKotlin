@@ -21,7 +21,12 @@ class UniqueEmailValidatorFactory(val authorRepository: AuthorRepository) {
     @Singleton
     fun UniqueEmailValidator(): ConstraintValidator<UniqueEmail, String> {
         return ConstraintValidator { value, _, _ ->
-            !authorRepository.existsByEmail(value)
+            if (value == null) {
+                true
+            } else {
+                !authorRepository.existsByEmail(value)
+            }
+
         }
     }
 }

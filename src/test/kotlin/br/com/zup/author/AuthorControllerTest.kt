@@ -17,13 +17,12 @@ import org.junit.jupiter.params.provider.ValueSource
 import java.time.LocalDateTime
 import javax.inject.Inject
 
-@MicronautTest(rollback = true)
+@MicronautTest
 internal class AuthorControllerTest(private val authorRepository: AuthorRepository) {
 
     @Inject
     @field:Client("/")
     lateinit var client: RxHttpClient
-
 
     @Test
     fun `Return status code 200 when author is created`() {
@@ -77,10 +76,7 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
                 exchange<NewAuthorRequest, AuthorResponse>(HttpRequest.POST("/authors", newAuthorRequest))
             }
         }.also {
-            assertAll(
-                Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
-                Executable { assertTrue(it.localizedMessage.contains("request.name:")) }
-            )
+            assertEquals(it.status, HttpStatus.BAD_REQUEST)
         }
     }
 
@@ -102,10 +98,7 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
                 exchange<NewAuthorRequest, AuthorResponse>(HttpRequest.POST("/authors", newAuthorRequest))
             }
         }.also {
-            assertAll(
-                Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
-                Executable { assertTrue(it.localizedMessage.contains("request.description:")) }
-            )
+            assertEquals(HttpStatus.BAD_REQUEST, it.status)
         }
     }
 
