@@ -14,6 +14,7 @@ datasources:
     driverClassName: org.h2.Driver
     username: ${DB_USER:`sa`}
     password: ${DB_PASSWORD:``}
+    schema-generate: CREATE_DROP
 
 jpa:
   default:

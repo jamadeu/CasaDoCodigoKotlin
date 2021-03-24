@@ -5,8 +5,11 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
+import io.micronaut.test.annotation.TransactionMode
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.function.Executable
@@ -24,10 +27,19 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
     @field:Client("/")
     lateinit var client: RxHttpClient
 
+    @BeforeEach
+    fun drop() {
+        authorRepository.deleteAll()
+    }
+
     @Test
     fun `Return status code 200 when author was created`() {
         val newAuthorRequest = NewAuthorRequest("Author", "author@test.com", "description")
-        client.toBlocking().exchange<NewAuthorRequest, AuthorResponse>(HttpRequest.POST("/authors", newAuthorRequest))
+        client.toBlocking().exchange<NewAuthorRequest, Void>(
+            HttpRequest.POST(
+                "/authors", newAuthorRequest
+            )
+        )
             .also {
                 assertAll(
                     Executable { assertNotNull(it) },
@@ -53,10 +65,14 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
     @NullSource
     @ValueSource(strings = ["invalidEmail"])
     fun `Return status 400 when email is null, empty or invalid`(email: String?) {
-        val newAuthorRequest = NewAuthorRequest("Author", email, "description")
         client.toBlocking().run {
             assertThrows<HttpClientResponseException> {
-                exchange<NewAuthorRequest, AuthorResponse>(HttpRequest.POST("/authors", newAuthorRequest))
+                exchange<NewAuthorRequest, Void>(
+                    HttpRequest.POST(
+                        "/authors",
+                        NewAuthorRequest("Author", email, "description")
+                    )
+                )
             }
         }.also {
             assertAll(
@@ -64,19 +80,31 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
                 Executable { assertTrue(it.localizedMessage.contains("request.email:")) }
             )
         }
+
+        authorRepository.findAll().also {
+            assertEquals(0, it.size)
+        }
     }
 
     @ParameterizedTest
     @EmptySource
     @NullSource
     fun `Return status 400 when name is empty or null`(name: String?) {
-        val newAuthorRequest = NewAuthorRequest(name, "email@test.com", "description")
         client.toBlocking().run {
             assertThrows<HttpClientResponseException> {
-                exchange<NewAuthorRequest, AuthorResponse>(HttpRequest.POST("/authors", newAuthorRequest))
+                exchange<NewAuthorRequest, Void>(
+                    HttpRequest.POST(
+                        "/authors",
+                        NewAuthorRequest(name, "email@test.com", "description")
+                    )
+                )
             }
         }.also {
             assertEquals(it.status, HttpStatus.BAD_REQUEST)
+        }
+
+        authorRepository.findAll().also {
+            assertEquals(0, it.size)
         }
     }
 
@@ -92,13 +120,21 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
         ]
     )
     fun `Return status 400 when description is empty, null or has over than 400 characters`(description: String?) {
-        val newAuthorRequest = NewAuthorRequest("Name", "email@test.com", description)
         client.toBlocking().run {
             assertThrows<HttpClientResponseException> {
-                exchange<NewAuthorRequest, AuthorResponse>(HttpRequest.POST("/authors", newAuthorRequest))
+                exchange<NewAuthorRequest, Void>(
+                    HttpRequest.POST(
+                        "/authors",
+                        NewAuthorRequest("Name", "email@test.com", description)
+                    )
+                )
             }
         }.also {
             assertEquals(HttpStatus.BAD_REQUEST, it.status)
+        }
+
+        authorRepository.findAll().also {
+            assertEquals(0, it.size)
         }
     }
 
@@ -108,16 +144,20 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
         val newAuthorRequest = NewAuthorRequest("Name", "email@test.com", "description")
 
         client.toBlocking().also {
-            it.exchange<NewAuthorRequest, AuthorResponse>(HttpRequest.POST("/authors", newAuthorRequest))
+            it.exchange<NewAuthorRequest, Void>(HttpRequest.POST("/authors", newAuthorRequest))
         }.run {
             assertThrows<HttpClientResponseException> {
-                exchange<NewAuthorRequest, AuthorResponse>(HttpRequest.POST("/authors", newAuthorRequest))
+                exchange<NewAuthorRequest, Void>(HttpRequest.POST("/authors", newAuthorRequest))
             }
         }.also {
             assertAll(
                 Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
                 Executable { assertTrue(it.localizedMessage.contains("request.email:")) }
             )
+        }
+
+        authorRepository.findAll().also {
+            assertEquals(1, it.size)
         }
     }
 }
