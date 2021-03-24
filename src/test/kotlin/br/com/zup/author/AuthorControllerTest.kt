@@ -19,6 +19,7 @@ import org.junit.jupiter.params.provider.NullSource
 import org.junit.jupiter.params.provider.ValueSource
 import java.time.LocalDateTime
 import javax.inject.Inject
+import javax.transaction.Transactional
 
 @MicronautTest
 internal class AuthorControllerTest(private val authorRepository: AuthorRepository) {
