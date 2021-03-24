@@ -7,12 +7,11 @@ import javax.validation.constraints.Size
 
 @Introspected
 data class NewAuthorRequest(
-    @field:NotBlank val name: String? = null,
-    @field:NotBlank @field:Email val email: String? = null,
-    @field:NotBlank @field:Size(max = 400) val description: String? = null
+    @field:NotBlank val name: String?,
+    @field:NotBlank @field:Email val email: String?,
+    @field:NotBlank @field:Size(max = 400) val description: String?
 ) {
     fun toAuthor(): Author {
-        println("To model")
         return Author(name!!, email!!, description!!)
     }
 }

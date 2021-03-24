@@ -14,6 +14,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EmptySource
 import org.junit.jupiter.params.provider.NullSource
 import org.junit.jupiter.params.provider.ValueSource
+import java.lang.NullPointerException
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -28,7 +29,7 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
     @Test
     fun `Return status code 200 when author is created`() {
         val newAuthorRequest = NewAuthorRequest("Author", "author@test.com", "description")
-        client.toBlocking().exchange<Any, Any>(HttpRequest.POST("/authors", newAuthorRequest))
+        client.toBlocking().exchange<NewAuthorRequest, AuthorResponse>(HttpRequest.POST("/authors", newAuthorRequest))
             .also {
                 assertAll(
                     Executable { assertNotNull(it) },
@@ -50,18 +51,24 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
     }
 
     @ParameterizedTest
-    @NullSource
     @EmptySource
+    @NullSource
     @ValueSource(strings = ["invalidEmail"])
-    fun `Return status 400 when email is null, empty or invalid`(email: String) {
+    fun `Return status 400 when email is null, empty or invalid`(email: String?) {
         val newAuthorRequest = NewAuthorRequest("Author", email, "description")
         client.toBlocking().run {
             assertThrows<HttpClientResponseException> {
-                exchange<Any, Any>(HttpRequest.POST("/authors", newAuthorRequest)) }
+                exchange<NewAuthorRequest, AuthorResponse>(HttpRequest.POST("/authors", newAuthorRequest))
+            }
         }.also {
-            assertEquals(it.status, HttpStatus.BAD_REQUEST)
+            assertAll(
+                Executable { assertEquals(it.status, HttpStatus.BAD_REQUEST) },
+                Executable { assertTrue(it.localizedMessage.contains("request.email:")) }
+            )
         }
     }
+
+
 
 }
 

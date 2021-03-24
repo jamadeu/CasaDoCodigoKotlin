@@ -34,7 +34,6 @@ class AuthorController(
     @Post
     @Transactional
     fun create(@Body @Valid request: NewAuthorRequest) {
-        println(request)
         val author = request.toAuthor();
         authorRepository.save(author)
     }
