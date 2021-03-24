@@ -25,7 +25,7 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
     lateinit var client: RxHttpClient
 
     @Test
-    fun `Return status code 200 when author is created`() {
+    fun `Return status code 200 when author was created`() {
         val newAuthorRequest = NewAuthorRequest("Author", "author@test.com", "description")
         client.toBlocking().exchange<NewAuthorRequest, AuthorResponse>(HttpRequest.POST("/authors", newAuthorRequest))
             .also {
