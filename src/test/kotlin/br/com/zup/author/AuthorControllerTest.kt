@@ -62,8 +62,25 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
             }
         }.also {
             assertAll(
-                Executable { assertEquals(it.status, HttpStatus.BAD_REQUEST) },
+                Executable { assertEquals( HttpStatus.BAD_REQUEST, it.status) },
                 Executable { assertTrue(it.localizedMessage.contains("request.email:")) }
+            )
+        }
+    }
+
+    @ParameterizedTest
+    @EmptySource
+    @NullSource
+    fun `Return status 400 when name is empty or null`(name: String?) {
+        val newAuthorRequest = NewAuthorRequest(name, "email@test.com", "description")
+        client.toBlocking().run {
+            assertThrows<HttpClientResponseException> {
+                exchange<NewAuthorRequest, AuthorResponse>(HttpRequest.POST("/authors", newAuthorRequest))
+            }
+        }.also {
+            assertAll(
+                Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
+                Executable { assertTrue(it.localizedMessage.contains("request.name:")) }
             )
         }
     }
