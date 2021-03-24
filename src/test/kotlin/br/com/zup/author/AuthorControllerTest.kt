@@ -14,7 +14,6 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EmptySource
 import org.junit.jupiter.params.provider.NullSource
 import org.junit.jupiter.params.provider.ValueSource
-import java.lang.NullPointerException
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -33,7 +32,7 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
             .also {
                 assertAll(
                     Executable { assertNotNull(it) },
-                    Executable { assertEquals(it.status, HttpStatus.OK) }
+                    Executable { assertEquals(HttpStatus.OK, it.status) }
                 )
             }
 
@@ -62,7 +61,7 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
             }
         }.also {
             assertAll(
-                Executable { assertEquals( HttpStatus.BAD_REQUEST, it.status) },
+                Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
                 Executable { assertTrue(it.localizedMessage.contains("request.email:")) }
             )
         }
@@ -85,6 +84,30 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
         }
     }
 
+    @ParameterizedTest
+    @EmptySource
+    @NullSource
+    @ValueSource(
+        strings = [
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque rhoncus enim ac convallis tincidunt. " +
+                    "Vestibulum commodo tincidunt sagittis. Suspendisse sit amet faucibus velit, feugiat consectetur nisi. " +
+                    "Fusce vel enim dui. Nam diam odio, blandit ac orci nec, vestibulum varius magna. Maecenas in hendrerit justo. " +
+                    "Nulla dolor ligula, pulvinar id turpis quis, semper suscipit sapien. Vivamus quam."
+        ]
+    )
+    fun `Return status 400 when description is empty, null or has over than 400 characters`(description: String?) {
+        val newAuthorRequest = NewAuthorRequest("Name", "email@test.com", description)
+        client.toBlocking().run {
+            assertThrows<HttpClientResponseException> {
+                exchange<NewAuthorRequest, AuthorResponse>(HttpRequest.POST("/authors", newAuthorRequest))
+            }
+        }.also {
+            assertAll(
+                Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
+                Executable { assertTrue(it.localizedMessage.contains("request.description:")) }
+            )
+        }
+    }
 
 
 }
