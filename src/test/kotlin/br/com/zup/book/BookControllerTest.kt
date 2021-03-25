@@ -4,6 +4,7 @@ import br.com.zup.author.Author
 import br.com.zup.author.AuthorRepository
 import br.com.zup.category.Category
 import br.com.zup.category.CategoryRepository
+import io.micronaut.core.type.Argument
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxHttpClient
@@ -187,7 +188,7 @@ internal class BookControllerTest(
                 assertAll(
                     Executable { assertNotNull(it) },
                     Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
-                    Executable { assertTrue(it.message!!.contains("resume: ",true)) }
+                    Executable { assertTrue(it.message!!.contains("resume: ", true)) }
                 )
             }
         bookRepository.findAll()
@@ -313,7 +314,7 @@ internal class BookControllerTest(
                 assertAll(
                     Executable { assertNotNull(it) },
                     Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
-                    Executable { assertTrue(it.message!!.contains("numberPages", true))}
+                    Executable { assertTrue(it.message!!.contains("numberPages", true)) }
                 )
                 println(it.message)
             }
@@ -471,6 +472,47 @@ internal class BookControllerTest(
             }
         bookRepository.findAll()
             .also { assertTrue(it.isEmpty()) }
+    }
+
+    @Test
+    fun `Return 200 and list of ListBookResponse`() {
+        val newBookRequest = NewBookRequest(
+            "Title",
+            "resume",
+            "summary",
+            BigDecimal(20.00).setScale(2),
+            100,
+            "isbn",
+            LocalDate.of(2030, 12, 12),
+            category,
+            author
+        )
+        client.toBlocking()
+            .also {
+                it.exchange<NewBookRequest, Void>(HttpRequest.POST("/books", newBookRequest))
+            }
+            .run {
+                exchange(
+                    HttpRequest.GET<Void>("/books"),
+                    Argument.listOf(ListBookResponse::class.java)
+                )
+            }.also {
+                assertAll(
+                    Executable { assertEquals(HttpStatus.OK, it.status) },
+                    Executable { assertNotNull(it.body()) },
+                    Executable {
+                        assertTrue(it.body()!!.contains(
+                            bookRepository.findByTitle(newBookRequest.title!!)
+                                .orElseThrow()
+                                .let {
+                                    it.id?.let { id ->
+                                        ListBookResponse(bookId = id, bookTitle = it.title)
+                                    }
+                                }
+                        ))
+                    }
+                )
+            }
     }
 }
 

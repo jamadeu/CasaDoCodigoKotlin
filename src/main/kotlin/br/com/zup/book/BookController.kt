@@ -18,10 +18,12 @@ class BookController(
     val authorRepository: AuthorRepository
 ) {
     @Get
-    fun listAll(): HttpResponse<List<ListBookResponse>> {
+    fun listAll(): HttpResponse<List<ListBookResponse?>> {
         return bookRepository.findAll()
             .map {
-                ListBookResponse(it)
+                it.id?.let { id ->
+                    ListBookResponse(bookId = id, bookTitle = it.title)
+                }
             }.let {
                 HttpResponse.ok(it)
             }

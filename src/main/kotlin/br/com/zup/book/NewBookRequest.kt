@@ -11,6 +11,7 @@ import io.micronaut.http.client.exceptions.HttpClientResponseException
 import java.math.BigDecimal
 import java.time.LocalDate
 import javax.inject.Inject
+import javax.validation.Valid
 import javax.validation.constraints.*
 
 @Introspected
