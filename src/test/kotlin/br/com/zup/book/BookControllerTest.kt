@@ -110,7 +110,8 @@ internal class BookControllerTest(
             .also {
                 assertAll(
                     Executable { assertNotNull(it) },
-                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) }
+                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
+                    Executable { assertTrue(it.message!!.contains("title: must not be blank", true)) }
                 )
             }
         bookRepository.findAll()
@@ -142,7 +143,8 @@ internal class BookControllerTest(
             .also {
                 assertAll(
                     Executable { assertNotNull(it) },
-                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) }
+                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
+                    Executable { assertTrue(it.message!!.contains("title: Book already in use", true)) }
                 )
             }
         bookRepository.findAll()
@@ -184,7 +186,8 @@ internal class BookControllerTest(
             .also {
                 assertAll(
                     Executable { assertNotNull(it) },
-                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) }
+                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
+                    Executable { assertTrue(it.message!!.contains("resume: ",true)) }
                 )
             }
         bookRepository.findAll()
@@ -215,7 +218,8 @@ internal class BookControllerTest(
             .also {
                 assertAll(
                     Executable { assertNotNull(it) },
-                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) }
+                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
+                    Executable { assertTrue(it.message!!.contains("summary: must not be blank")) }
                 )
             }
         bookRepository.findAll()
@@ -244,7 +248,8 @@ internal class BookControllerTest(
             .also {
                 assertAll(
                     Executable { assertNotNull(it) },
-                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) }
+                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
+                    Executable { assertTrue(it.message!!.contains("value: must not be null", true)) }
                 )
             }
         bookRepository.findAll()
@@ -274,9 +279,11 @@ internal class BookControllerTest(
             .also {
                 assertAll(
                     Executable { assertNotNull(it) },
-                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) }
+                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
+                    Executable { assertTrue(it.message!!.contains("value: must be greater than or equal to 20", true)) }
                 )
             }
+
         bookRepository.findAll()
             .also { assertTrue(it.isEmpty()) }
     }
@@ -284,7 +291,7 @@ internal class BookControllerTest(
     @ParameterizedTest
     @NullSource
     @ValueSource(ints = [99, 20])
-    fun `Return 400 when summary is null or empty`(numberPages: Int?) {
+    fun `Return 400 when numberPages less than 100 or null`(numberPages: Int?) {
         val newBookRequest = NewBookRequest(
             "Title",
             "resume",
@@ -305,8 +312,10 @@ internal class BookControllerTest(
             .also {
                 assertAll(
                     Executable { assertNotNull(it) },
-                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) }
+                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
+                    Executable { assertTrue(it.message!!.contains("numberPages", true))}
                 )
+                println(it.message)
             }
         bookRepository.findAll()
             .also { assertTrue(it.isEmpty()) }
@@ -336,7 +345,8 @@ internal class BookControllerTest(
             .also {
                 assertAll(
                     Executable { assertNotNull(it) },
-                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) }
+                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
+                    Executable { assertTrue(it.message!!.contains("isbn: must ", true)) }
                 )
             }
         bookRepository.findAll()
@@ -365,7 +375,8 @@ internal class BookControllerTest(
             .also {
                 assertAll(
                     Executable { assertNotNull(it) },
-                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) }
+                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
+                    Executable { assertTrue(it.message!!.contains("publicationDate: must not be null")) }
                 )
             }
         bookRepository.findAll()
@@ -394,7 +405,8 @@ internal class BookControllerTest(
             .also {
                 assertAll(
                     Executable { assertNotNull(it) },
-                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) }
+                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
+                    Executable { assertTrue(it.message!!.contains("publicationDate: must be a future date", true)) }
                 )
             }
         bookRepository.findAll()
@@ -423,7 +435,8 @@ internal class BookControllerTest(
             .also {
                 assertAll(
                     Executable { assertNotNull(it) },
-                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) }
+                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
+                    Executable { assertTrue(it.message!!.contains("category: must not be null", true)) }
                 )
             }
         bookRepository.findAll()
@@ -452,7 +465,8 @@ internal class BookControllerTest(
             .also {
                 assertAll(
                     Executable { assertNotNull(it) },
-                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) }
+                    Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
+                    Executable { assertTrue(it.message!!.contains("author: must not be null")) }
                 )
             }
         bookRepository.findAll()
