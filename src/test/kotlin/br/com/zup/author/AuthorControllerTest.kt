@@ -5,9 +5,7 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
-import io.micronaut.test.annotation.TransactionMode
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -19,7 +17,6 @@ import org.junit.jupiter.params.provider.NullSource
 import org.junit.jupiter.params.provider.ValueSource
 import java.time.LocalDateTime
 import javax.inject.Inject
-import javax.transaction.Transactional
 
 @MicronautTest
 internal class AuthorControllerTest(private val authorRepository: AuthorRepository) {
@@ -83,7 +80,7 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
         }
 
         authorRepository.findAll().also {
-            assertEquals(0, it.size)
+            assertTrue(it.isEmpty())
         }
     }
 
@@ -105,7 +102,7 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
         }
 
         authorRepository.findAll().also {
-            assertEquals(0, it.size)
+            assertTrue(it.isEmpty())
         }
     }
 
@@ -135,7 +132,7 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
         }
 
         authorRepository.findAll().also {
-            assertEquals(0, it.size)
+            assertTrue(it.isEmpty())
         }
     }
 

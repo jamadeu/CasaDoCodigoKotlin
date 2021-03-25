@@ -6,7 +6,6 @@ import br.com.zup.category.Category
 import br.com.zup.category.CategoryRepository
 import io.micronaut.core.annotation.Introspected
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -24,9 +23,18 @@ data class NewBookRequest(
     @field:NotNull val category: Category?,
     @field:NotNull val author: Author?
 ) {
-    fun toBook(categoryRepository: CategoryRepository,
-               authorRepository: AuthorRepository
+    fun toBook(
+        categoryRepository: CategoryRepository,
+        authorRepository: AuthorRepository
     ): Book {
+        category?.id?.let {
+            categoryRepository.findById(it)
+                .orElseThrow { HttpClientResponseException("Category not found", HttpResponse.badRequest<Void>()) }
+        }
+        author?.id?.let {
+            authorRepository.findById(it)
+                .orElseThrow { HttpClientResponseException("Author not found", HttpResponse.badRequest<Void>()) }
+        }
         return Book(
             title!!,
             resume!!,
