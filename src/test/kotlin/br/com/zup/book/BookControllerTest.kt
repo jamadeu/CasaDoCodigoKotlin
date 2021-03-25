@@ -4,7 +4,6 @@ import br.com.zup.author.Author
 import br.com.zup.author.AuthorRepository
 import br.com.zup.category.Category
 import br.com.zup.category.CategoryRepository
-import io.micronaut.core.type.Argument
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxHttpClient
@@ -492,31 +491,19 @@ internal class BookControllerTest(
                 it.exchange<NewBookRequest, Void>(HttpRequest.POST("/books", newBookRequest))
             }
             .run {
-                exchange(
-                    HttpRequest.GET<Void>("/books"),
-                    Argument.listOf(ListBookResponse::class.java)
+                exchange<Void, List<Map<String, Any>>>(
+                    HttpRequest.GET("/books")
                 )
             }.also {
-                assertAll(
-                    Executable { assertEquals(HttpStatus.OK, it.status) },
-                    Executable { assertNotNull(it.body()) },
-                    Executable {
-                        assertTrue(it.body()!!.contains(
-                            bookRepository.findByTitle(newBookRequest.title!!)
-                                .orElseThrow()
-                                .let {
-                                    it.id?.let { id ->
-                                        ListBookResponse(bookId = id, bookTitle = it.title)
-                                    }
-                                }
-                        ))
-                    }
-                )
+                assertEquals(HttpStatus.OK, it.status)
+            }.body().also {
+                it?.map {
+                    assertAll(
+                        Executable { assertTrue(it.containsKey("bookId")) },
+                        Executable { assertTrue(it.containsKey("bookTitle")) },
+                        Executable { assertTrue(it.containsValue(newBookRequest.title!!)) }
+                    )
+                }
             }
     }
 }
-
-
-
-
-
