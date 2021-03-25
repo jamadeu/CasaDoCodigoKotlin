@@ -75,7 +75,7 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
         }.also {
             assertAll(
                 Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
-                Executable { assertTrue(it.localizedMessage.contains("request.email:")) }
+                Executable { assertTrue(it.message!!.contains("email: ", true)) }
             )
         }
 
@@ -98,7 +98,10 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
                 )
             }
         }.also {
-            assertEquals(it.status, HttpStatus.BAD_REQUEST)
+            assertAll(
+                Executable { assertEquals(it.status, HttpStatus.BAD_REQUEST) },
+                Executable { assertTrue(it.message!!.contains("name: must not be blank", true)) }
+            )
         }
 
         authorRepository.findAll().also {
@@ -128,7 +131,10 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
                 )
             }
         }.also {
-            assertEquals(HttpStatus.BAD_REQUEST, it.status)
+            assertAll(
+                Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
+                Executable { assertTrue(it.message!!.contains("description: ", true)) }
+            )
         }
 
         authorRepository.findAll().also {
@@ -150,7 +156,7 @@ internal class AuthorControllerTest(private val authorRepository: AuthorReposito
         }.also {
             assertAll(
                 Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
-                Executable { assertTrue(it.localizedMessage.contains("request.email:")) }
+                Executable { assertTrue(it.message!!.contains("email: Email already in use", true)) }
             )
         }
 
