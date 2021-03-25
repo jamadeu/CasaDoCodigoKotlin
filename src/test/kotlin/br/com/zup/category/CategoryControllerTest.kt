@@ -6,10 +6,11 @@ import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.function.Executable
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EmptySource
 import org.junit.jupiter.params.provider.NullSource
@@ -51,7 +52,10 @@ class CategoryControllerTest(private val categoryRepository: CategoryRepository)
                 exchange<NewCategoryRequest, Void>(HttpRequest.POST("/categories", newCategoryRequest))
             }
         }.also {
-            assertEquals(HttpStatus.BAD_REQUEST, it.status)
+            assertAll(
+                Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
+                Executable { assertTrue(it.message!!.contains("name: Category already in use", true)) }
+            )
         }
 
         categoryRepository.findAll().also {
@@ -68,7 +72,10 @@ class CategoryControllerTest(private val categoryRepository: CategoryRepository)
                 exchange<NewCategoryRequest, Void>(HttpRequest.POST("/categories", NewCategoryRequest(name)))
             }
         }.also {
-            assertEquals(HttpStatus.BAD_REQUEST, it.status)
+            assertAll(
+                Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
+                Executable { assertTrue(it.message!!.contains("name: must not be blank", true)) }
+            )
         }
 
         categoryRepository.findAll().also {
