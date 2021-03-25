@@ -1,5 +1,6 @@
 package br.com.zup.author
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import java.time.LocalDateTime
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -19,5 +20,6 @@ data class Author(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     var createdAt: LocalDateTime = LocalDateTime.now()
 }

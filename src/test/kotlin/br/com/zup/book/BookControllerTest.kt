@@ -458,7 +458,6 @@ internal class BookControllerTest(
         bookRepository.findAll()
             .also { assertTrue(it.isEmpty()) }
     }
-
 }
 
 
