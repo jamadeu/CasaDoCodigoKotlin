@@ -45,6 +45,8 @@ dependencies {
     testCompileOnly("io.micronaut.test:micronaut-test-junit5:2.3.2")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.0-M1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
+    testImplementation("org.mockito:mockito-all:1.10.19")
+
 
     //JPA
     runtimeOnly("io.micronaut.sql:micronaut-jdbc-hikari")

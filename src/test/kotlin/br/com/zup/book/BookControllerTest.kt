@@ -57,8 +57,8 @@ internal class BookControllerTest(
             100,
             "isbn",
             LocalDate.of(2030, 12, 12),
-            category,
-            author
+            category?.id,
+            author?.id
         )
         client.toBlocking().exchange<NewBookRequest, Void>(
             HttpRequest.POST("/books", newBookRequest)
@@ -80,8 +80,8 @@ internal class BookControllerTest(
                     Executable { assertEquals(newBookRequest.numberPages, it!!.numberPages) },
                     Executable { assertEquals(newBookRequest.isbn, it!!.isbn) },
                     Executable { assertEquals(newBookRequest.publicationDate, it!!.publicationDate) },
-                    Executable { assertEquals(newBookRequest.category, it!!.category) },
-                    Executable { assertEquals(newBookRequest.author, it!!.author) }
+                    Executable { assertEquals(newBookRequest.idCategory, it!!.category.id) },
+                    Executable { assertEquals(newBookRequest.idAuthor, it!!.author.id) }
                 )
             }
     }
@@ -98,8 +98,8 @@ internal class BookControllerTest(
             100,
             "isbn",
             LocalDate.of(2030, 12, 12),
-            category,
-            author
+            category?.id,
+            author?.id
         )
         client.toBlocking()
             .run {
@@ -128,8 +128,8 @@ internal class BookControllerTest(
             100,
             "isbn",
             LocalDate.of(2030, 12, 12),
-            category,
-            author
+            category?.id,
+            author?.id
         )
         client.toBlocking()
             .also {
@@ -174,8 +174,8 @@ internal class BookControllerTest(
             100,
             "isbn",
             LocalDate.of(2030, 12, 12),
-            category,
-            author
+            category?.id,
+            author?.id
         )
         client.toBlocking()
             .run {
@@ -206,8 +206,8 @@ internal class BookControllerTest(
             100,
             "isbn",
             LocalDate.of(2030, 12, 12),
-            category,
-            author
+            category?.id,
+            author?.id
         )
         client.toBlocking()
             .run {
@@ -236,8 +236,8 @@ internal class BookControllerTest(
             100,
             "isbn",
             LocalDate.of(2030, 12, 12),
-            category,
-            author
+            category?.id,
+            author?.id
         )
         client.toBlocking()
             .run {
@@ -267,8 +267,8 @@ internal class BookControllerTest(
             100,
             "isbn",
             LocalDate.of(2030, 12, 12),
-            category,
-            author
+            category?.id,
+            author?.id
         )
         client.toBlocking()
             .run {
@@ -300,8 +300,8 @@ internal class BookControllerTest(
             numberPages,
             "isbn",
             LocalDate.of(2030, 12, 12),
-            category,
-            author
+            category?.id,
+            author?.id
         )
         client.toBlocking()
             .run {
@@ -333,8 +333,8 @@ internal class BookControllerTest(
             100,
             isbn,
             LocalDate.of(2030, 12, 12),
-            category,
-            author
+            category?.id,
+            author?.id
         )
         client.toBlocking()
             .run {
@@ -363,8 +363,8 @@ internal class BookControllerTest(
             100,
             "isbn",
             null,
-            category,
-            author
+            category?.id,
+            author?.id
         )
         client.toBlocking()
             .run {
@@ -393,8 +393,8 @@ internal class BookControllerTest(
             100,
             "isbn",
             LocalDate.now(),
-            category,
-            author
+            category?.id,
+            author?.id
         )
         client.toBlocking()
             .run {
@@ -414,7 +414,7 @@ internal class BookControllerTest(
     }
 
     @Test
-    fun `Return 400 when category is null`() {
+    fun `Return 400 when idCategory is null`() {
         val newBookRequest = NewBookRequest(
             "Title",
             "resume",
@@ -424,7 +424,7 @@ internal class BookControllerTest(
             "isbn",
             LocalDate.of(2030, 12, 12),
             null,
-            author
+            author?.id
         )
         client.toBlocking()
             .run {
@@ -436,7 +436,7 @@ internal class BookControllerTest(
                 assertAll(
                     Executable { assertNotNull(it) },
                     Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
-                    Executable { assertTrue(it.message!!.contains("category: must not be null", true)) }
+                    Executable { assertTrue(it.message!!.contains("idCategory: must not be null", true)) }
                 )
             }
         bookRepository.findAll()
@@ -444,7 +444,7 @@ internal class BookControllerTest(
     }
 
     @Test
-    fun `Return 400 when author is null`() {
+    fun `Return 400 when idAuthor is null`() {
         val newBookRequest = NewBookRequest(
             "Title",
             "resume",
@@ -453,7 +453,7 @@ internal class BookControllerTest(
             100,
             "isbn",
             LocalDate.of(2030, 12, 12),
-            category,
+            category?.id,
             null
         )
         client.toBlocking()
@@ -466,7 +466,7 @@ internal class BookControllerTest(
                 assertAll(
                     Executable { assertNotNull(it) },
                     Executable { assertEquals(HttpStatus.BAD_REQUEST, it.status) },
-                    Executable { assertTrue(it.message!!.contains("author: must not be null")) }
+                    Executable { assertTrue(it.message!!.contains("idAuthor: must not be null")) }
                 )
             }
         bookRepository.findAll()
@@ -483,8 +483,8 @@ internal class BookControllerTest(
             100,
             "isbn",
             LocalDate.of(2030, 12, 12),
-            category,
-            author
+            category?.id,
+            author?.id
         )
         client.toBlocking()
             .also {
