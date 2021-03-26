@@ -506,4 +506,78 @@ internal class BookControllerTest(
                 }
             }
     }
+
+    @Test
+    fun `Return book details`() {
+        val newBookRequest = NewBookRequest(
+            "Title",
+            "resume",
+            "summary",
+            BigDecimal(20.00).setScale(2),
+            100,
+            "isbn",
+            LocalDate.of(2030, 12, 12),
+            category?.id,
+            author?.id
+        )
+        client.toBlocking()
+            .also {
+                it.exchange<NewBookRequest, Void>(HttpRequest.POST("/books", newBookRequest))
+            }.run {
+                val id = bookRepository.findByTitle(newBookRequest.title!!).orElseThrow().id
+                exchange<Void, List<Map<String, Any>>>(HttpRequest.GET("/books/$id"))
+            }.also {
+                assertAll(
+                    Executable { assertNotNull(it) },
+                    Executable { assertEquals(HttpStatus.OK, it.status) }
+                )
+            }.body()
+            .also {
+                it?.map {
+                    assertAll(
+                        Executable { assertEquals(newBookRequest.title, it["title"]) },
+                        Executable { assertEquals(newBookRequest.resume, it["resume"]) },
+                        Executable { assertEquals(newBookRequest.summary, it["summary"]) },
+                        Executable { assertEquals(newBookRequest.publicationDate, it["publicationDate"]) },
+                        Executable { assertEquals(newBookRequest.numberPages, it["numberPages"]) },
+                        Executable { assertEquals(newBookRequest.isbn, it["isbn"]) },
+                        Executable { assertEquals(newBookRequest.value, it["value"]) },
+                        Executable {
+                            assertEquals(
+                                mapOf(
+                                    Pair("name", author?.name),
+                                    Pair("email", author?.email),
+                                    Pair("description", author?.description)
+                                ), it["author"]
+                            )
+                        },
+                        Executable {
+                            assertEquals(
+                                mapOf(
+                                    Pair("name", category?.name),
+                                ), it["category"]
+                            )
+                        }
+                    )
+                }
+            }
+    }
+
+    @Test
+    fun `Return 404 when book was not found by id`() {
+        client.toBlocking()
+            .run {
+                assertThrows<HttpClientResponseException> {
+                    exchange<Void, String>(HttpRequest.GET("/books/1"))
+                        .also {
+                            assertAll(
+                                Executable { assertNotNull(it) },
+                                Executable { assertNotNull(it.body()) },
+                                Executable { assertEquals("Book not found", it.body()) }
+                            )
+                        }
+                }
+            }
+    }
+
 }
